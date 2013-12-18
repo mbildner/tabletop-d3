@@ -1,0 +1,76 @@
+<html>
+<head>
+	<title>Fun With Money</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.1.0/tabletop.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+</head>
+<body>
+
+	<script>
+
+	var height = 500;
+	var width = 500;
+
+
+    $.ready = function () {
+			Tabletop.init( { 
+        key: '0AlTLJkTO7zRvdFBab1F3TjlVSXdZV1NoR1IxVngzaWc',
+				callback: function(dataset, tabletop) {
+		          initialize(dataset);
+				},
+				simpleSheet: true 
+      });
+	}
+
+    function initialize (dataset) {
+
+
+        console.log(dataset);
+
+
+    	dataset.forEach(function (record) {
+    		record.date = new Date(record.date);
+    		record.weekday = record.date.getDay();
+    	});
+
+    	var colors = {
+    		'R': "red",
+    		'D': "blue"
+    	};
+
+    	var dateScale = d3.scale.linear()
+    		.domain([0, 6])
+    		.range([0, width]);
+
+    	var barWidth = width / dataset.length; 
+
+    	var svg = d3.select('body').append('svg')
+    		.attr('width', width)
+    		.attr('height', height);
+
+
+    	var rect = svg.selectAll('rect')
+    		.data(dataset)
+    			.enter()
+    			.append('rect')
+    				.attr('x', function (d, i) {
+    					return barWidth * i;
+    				})
+    				.attr('y', function (d) {
+    					return d.amount;
+    				})
+    				.attr('width', function (d, i) {
+    					return 10;
+    				})
+    				.attr('height', height)
+    				.style('fill', 'red');
+
+
+      };
+
+
+	</script>
+</body>
+</html>
