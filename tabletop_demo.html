@@ -10,65 +10,107 @@
 
 	<script>
 
-	var height = 500;
-	var width = 500;
 
 
     $.ready = function () {
-			Tabletop.init( { 
+            Tabletop.init( { 
         key: '0AlTLJkTO7zRvdFBab1F3TjlVSXdZV1NoR1IxVngzaWc',
-				callback: function(dataset, tabletop) {
-		          initialize(dataset);
-				},
-				simpleSheet: true 
+                callback: function(dataset, tabletop) {
+                  initialize(dataset);
+                },
+                simpleSheet: true 
       });
-	}
+    }
 
     function initialize (dataset) {
 
+        var daysOfWeek = {
+            0: 'Sunday',
+            1: 'Monday', 
+            2: 'Tuesday',
+            3: 'Wednesday',
+            4: 'Thursday', 
+            5: 'Friday', 
+            6: 'Saturday'
+        };
 
-        console.log(dataset);
+    	var height = 500;
+    	var width = 500;
 
+        var dataset = dataset.map(function (record) {
+            record.date = new Date(record.date);
+            record.dayOfWeek = daysOfWeek[record.date.getDay()];
+            return record;
+        });
 
-    	dataset.forEach(function (record) {
-    		record.date = new Date(record.date);
-    		record.weekday = record.date.getDay();
-    	});
+        var daily_sums = {
+            'R': {},
+            'D': {}
+        };
 
-    	var colors = {
-    		'R': "red",
-    		'D': "blue"
-    	};
-
-    	var dateScale = d3.scale.linear()
-    		.domain([0, 6])
-    		.range([0, width]);
-
-    	var barWidth = width / dataset.length; 
-
-    	var svg = d3.select('body').append('svg')
-    		.attr('width', width)
-    		.attr('height', height);
-
-
-    	var rect = svg.selectAll('rect')
-    		.data(dataset)
-    			.enter()
-    			.append('rect')
-    				.attr('x', function (d, i) {
-    					return barWidth * i;
-    				})
-    				.attr('y', function (d) {
-    					return d.amount;
-    				})
-    				.attr('width', function (d, i) {
-    					return 10;
-    				})
-    				.attr('height', height)
-    				.style('fill', 'red');
+        dataset.forEach(function (record) {
+            daily_sums[record.party][record.dayOfWeek] = daily_sums[record.party][record.dayOfWeek] || 0
+            daily_sums[record.party][record.dayOfWeek] = daily_sums[record.party][record.dayOfWeek] || 0
+            daily_sums[record.party][record.dayOfWeek] += +record.amount;
+        });
 
 
-      };
+
+        var daily_contributions = [];
+
+        for (var party in daily_sums) {
+            for (var day in daily_sums[party]) {
+                var amount = daily_sums[party][day];
+                daily_contributions.push({
+                    party: party,
+                    day: day,
+                    amount: amount
+                });
+            }
+
+        }
+
+        window.daily_contributions = daily_contributions;
+
+        console.log(daily_contributions);
+
+        var barWidth = width / daily_contributions.length;
+
+        var barHeightScale = d3.scale.linear()
+            .domain([0, d3.max(daily_contributions, function (record) {
+                return record.amount;
+            })])
+            .range([0, height]);
+
+
+        var svg = d3.select('body').append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        var rect = svg.selectAll('rect')
+            .data(daily_contributions)
+            .enter()
+                .append('rect')
+                    .attr('x', function (d, i) {
+                        return i * barWidth + 10;
+                    })
+                    .attr('y', function (d) {
+                        return height - barHeightScale(d.amount);
+                    })
+                    .attr('width', barWidth - 10)
+                    .attr('height', function (d) {
+                        return barHeightScale(d.amount);
+                    })
+                    .style('fill', function (d) {
+                        if (d.party==='D') {
+                            return 'blue';
+                        } else if (d.party==='R') {
+                            return 'red';
+                        }
+                    });
+
+
+};
 
 
 	</script>
