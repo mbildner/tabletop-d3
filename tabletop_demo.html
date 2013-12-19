@@ -98,6 +98,25 @@
             .attr('width', width)
             .attr('height', height);
 
+        var scale_for_y_axis = d3.scale.linear().domain([0, d3.max(daily_contributions, function (record) {
+                return record.amount;
+            })])
+            .range([height, 0]);
+        // var xAxis = d3.svg.axis().scale(x).tickSize(-height).tickSubdivide(true);
+        var yAxis = d3.svg.axis().scale(scale_for_y_axis).tickSize(1).orient("left");
+
+
+            // svg.append("g")
+            //   .attr("class", "x axis")
+            //   .attr("transform", "translate(0," + height + ")")
+            //   .call(xAxis);
+
+          // Add the y-axis.
+          svg.append("g")
+              .attr("class", "y axis")
+              .attr("transform", "translate(" + width + ",0)")
+              .call(yAxis);
+
         var rect = svg.selectAll('rect')
             .data(daily_contributions)
             .enter()
@@ -119,6 +138,7 @@
                             return 'red';
                         }
                     });
+
 
 
 };
