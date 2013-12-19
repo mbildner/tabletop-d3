@@ -22,6 +22,19 @@
       });
     }
 
+
+    function zipArrays (array1, array2) {
+        if (array1.length !== array2.length) {
+            return;
+        }
+        var zippedArray = [];
+        for (var i=0; i<array1.length; i++) {
+            zippedArray.push(array1[i]);
+            zippedArray.push(array2[i]);
+        }
+        return zippedArray;
+    }
+
     function initialize (dataset) {
 
         var daysOfWeek = {
@@ -67,12 +80,10 @@
                     amount: amount
                 });
             }
-
         }
 
-        window.daily_contributions = daily_contributions;
+        daily_contributions = zipArrays(daily_contributions.slice(0, daily_contributions.length/2), daily_contributions.slice(daily_contributions.length/2, daily_contributions.length));
 
-        console.log(daily_contributions);
 
         var barWidth = width / daily_contributions.length;
 
